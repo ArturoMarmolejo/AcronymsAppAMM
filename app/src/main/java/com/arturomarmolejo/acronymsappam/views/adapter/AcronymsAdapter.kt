@@ -17,7 +17,6 @@ class AcronymsAdapter(
         if(itemSet != newItems) {
             itemSet.clear()
             itemSet.addAll(newItems)
-
             notifyDataSetChanged()
         }
     }
@@ -42,7 +41,7 @@ class AcronymsViewHolder(
 ): RecyclerView.ViewHolder(binding.root) {
     fun bind(item: Lf, onItemClick: (previewLongForm: Lf) -> Unit) {
         binding.acronymMeaning.text = item.lf
-        
+
         itemView.setOnClickListener {
             onItemClick(item)
         }
