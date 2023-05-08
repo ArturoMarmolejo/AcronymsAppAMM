@@ -15,8 +15,6 @@ open class BaseFragment: Fragment() {
         ViewModelProvider(requireActivity())[AcronymsViewModel::class.java]
     }
 
-//    private val acronymsViewModel by viewModels<AcronymsViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }

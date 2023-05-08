@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.arturomarmolejo.acronymsappam.R
 import com.arturomarmolejo.acronymsappam.databinding.FragmentAcronymListBinding
 import com.arturomarmolejo.acronymsappam.utils.BaseFragment
 import com.arturomarmolejo.acronymsappam.utils.UIState
@@ -24,9 +26,11 @@ private const val ARG_PARAM2 = "param2"
  */
 private const val TAG = "AcronymList"
 class AcronymList : BaseFragment() {
-   private val binding by lazy {
-       FragmentAcronymListBinding.inflate(layoutInflater)
-   }
+//   private val binding by lazy {
+//       FragmentAcronymListBinding.inflate(layoutInflater)
+//   }
+
+    private lateinit var binding: FragmentAcronymListBinding
 
     private val acronymsAdapter: AcronymsAdapter by lazy {
         AcronymsAdapter {
@@ -39,7 +43,15 @@ class AcronymList : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
+//        binding = FragmentAcronymListBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate<FragmentAcronymListBinding>(
+            inflater,
+            R.layout.fragment_acronym_list,
+            container,
+            false
+        ).apply {
+            this.viewModel = acronymsViewModel
+        }
         binding.acronymListRv.apply {
             layoutManager = LinearLayoutManager(
                 requireContext(),
@@ -64,15 +76,7 @@ class AcronymList : BaseFragment() {
             }
         }
 
-        binding.btnSearch.setOnClickListener {
-            val searchQuery = binding.etSearch.text.toString().trim()
-            acronymsViewModel.getAllAcronyms(sf = searchQuery)
-            if (searchQuery.isNotEmpty()) {
-                acronymsViewModel.getAllAcronyms(sf = searchQuery)
-            } else {
-                acronymsViewModel.getAllAcronyms(null)
-            }
-        }
+
         return binding.root
     }
 }

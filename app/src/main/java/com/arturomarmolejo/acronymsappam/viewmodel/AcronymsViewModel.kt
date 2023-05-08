@@ -1,25 +1,36 @@
 package com.arturomarmolejo.acronymsappam.viewmodel
 
 import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.appcompat.widget.SearchView
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.RecyclerView
 import com.arturomarmolejo.acronymsappam.model.AcromineItem
 import com.arturomarmolejo.acronymsappam.model.Lf
 import com.arturomarmolejo.acronymsappam.rest.AcromineRepository
 import com.arturomarmolejo.acronymsappam.usecases.GetAcronymsUseCase
 import com.arturomarmolejo.acronymsappam.utils.UIState
+import com.arturomarmolejo.acronymsappam.views.adapter.AcronymsAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
+import okhttp3.internal.notifyAll
 import javax.inject.Inject
 
 private const val TAG = "AcronymsViewModel"
 @HiltViewModel
 class AcronymsViewModel @Inject constructor(
     private val acromineRepository: AcromineRepository,
-    private val getAcronymsUseCase: GetAcronymsUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ): ViewModel() {
     private var isInitialized = false
@@ -32,6 +43,27 @@ class AcronymsViewModel @Inject constructor(
     private val _longFormList: MutableLiveData<UIState<MutableList<AcromineItem>>> = MutableLiveData(UIState.LOADING)
     val longFormList: LiveData<UIState<MutableList<AcromineItem>>> get() = _longFormList
 
+    var searchViewContent: MutableStateFlow<String> = MutableStateFlow("")
+
+    fun getOnQueryTextListener(): SearchView.OnQueryTextListener{
+        return object : OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    if (it == searchViewContent.value)
+                        return true
+                    if (it.length > 1) {
+                        getAllAcronyms(query)
+                        searchViewContent.value = it
+                        return true
+                    }
+                }
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        }
+    }
     fun getAllAcronyms(sf: String? = null, lf: String? = null) {
         viewModelScope.launch(ioDispatcher) {
             selectedSf = sf
@@ -52,4 +84,12 @@ class AcronymsViewModel @Inject constructor(
     }
 
 
+}
+
+@BindingAdapter("acronym_search_view")
+fun setSearchViewAdapter(
+    searchView: SearchView,
+    listener: OnQueryTextListener
+) {
+    searchView.setOnQueryTextListener(listener)
 }
