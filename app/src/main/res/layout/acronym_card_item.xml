@@ -9,7 +9,7 @@
     android:layout_marginTop="5sp"
     android:layout_marginRight="5sp"
     android:layout_marginBottom="5sp"
-    app:cardBackgroundColor="#FAF5F5"
+    app:cardBackgroundColor="@color/background_color"
     android:padding="5dp"
     >
 
@@ -24,6 +24,8 @@
             android:layout_marginLeft="24dp"
             android:layout_marginTop="16dp"
             android:text="Acronym"
+            android:textColor="@color/text_color"
+            android:background="@color/background_color"
             android:textSize="22sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
