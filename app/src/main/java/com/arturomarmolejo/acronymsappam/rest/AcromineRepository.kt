@@ -43,19 +43,5 @@ class AcromineRepositoryImpl @Inject constructor(
             emit(UIState.ERROR(e))
         }
 
-//        emit(UIState.LOADING)
-//        val response = try {
-//            acromineServiceApi.getLongFormList(sf = sf, lf = lf)
-//        } catch (e: Exception) {
-//            emit(UIState.ERROR(e))
-//            return@flow
-//        }
-//        if (response.isSuccessful) {
-//            response.body()?.let {
-//                emit(UIState.SUCCESS(it))
-//            } ?: emit(UIState.ERROR(NullAcronymListResponse()))
-//        } else {
-//            emit(UIState.ERROR(FailureResponse(response.errorBody()?.string())))
-//        }
     }
 }

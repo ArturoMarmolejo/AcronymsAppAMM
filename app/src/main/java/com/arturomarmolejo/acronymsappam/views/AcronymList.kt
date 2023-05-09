@@ -1,5 +1,7 @@
 package com.arturomarmolejo.acronymsappam.views
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,10 +16,7 @@ import com.arturomarmolejo.acronymsappam.utils.BaseFragment
 import com.arturomarmolejo.acronymsappam.utils.UIState
 import com.arturomarmolejo.acronymsappam.views.adapter.AcronymsAdapter
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+
 
 /**
  * A simple [Fragment] subclass.
@@ -42,6 +41,7 @@ class AcronymList : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
 //        binding = FragmentAcronymListBinding.inflate(inflater, container, false)
         binding = DataBindingUtil.inflate<FragmentAcronymListBinding>(
@@ -52,6 +52,7 @@ class AcronymList : BaseFragment() {
         ).apply {
             this.viewModel = acronymsViewModel
         }
+
         binding.acronymListRv.apply {
             layoutManager = LinearLayoutManager(
                 requireContext(),
@@ -61,16 +62,37 @@ class AcronymList : BaseFragment() {
             setHasFixedSize(true)
             adapter = acronymsAdapter
         }
-        acronymsViewModel.longFormList.observe(viewLifecycleOwner) { state ->
-            when(state) {
-                is UIState.LOADING -> {}
-                is UIState.SUCCESS -> {
-                    Log.d(TAG, "onCreateView: ${state.response}")
-                    acronymsAdapter.updateItems(state.response)
-                }
-                is UIState.ERROR -> {
-                    showError(state.error.localizedMessage) {
-                        Log.d(TAG, "onCreateView: UIState Error: $state ")
+
+        isInternetAvailable()
+
+        if(!isInternetAvailable()) {
+            binding.noInternetTextView.visibility = View.VISIBLE
+        } else {
+            // check if the recycler view is empty and show/hide the TextView accordingly
+            if(acronymsAdapter.itemCount == 0) {
+                binding.noAcronymSearchedTv.visibility = View.VISIBLE
+            } else {
+                binding.noAcronymSearchedTv.visibility = View.GONE
+            }
+
+            binding.noInternetTextView.visibility = View.GONE
+            acronymsViewModel.longFormList.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UIState.LOADING -> {}
+                    is UIState.SUCCESS -> {
+                        Log.d(TAG, "onCreateView: ${state.response}")
+                        acronymsAdapter.updateItems(state.response)
+                        // check again if the recycler view is empty and show/hide the TextView accordingly
+                        if(acronymsAdapter.itemCount == 0) {
+                            binding.noAcronymSearchedTv.visibility = View.VISIBLE
+                        } else {
+                            binding.noAcronymSearchedTv.visibility = View.GONE
+                        }
+                    }
+                    is UIState.ERROR -> {
+                        showError(state.error.localizedMessage) {
+                            Log.d(TAG, "onCreateView: UIState Error: $state ")
+                        }
                     }
                 }
             }
@@ -79,4 +101,10 @@ class AcronymList : BaseFragment() {
 
         return binding.root
     }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return connectivityManager.activeNetworkInfo?.isConnected == true
+    }
 }
+
